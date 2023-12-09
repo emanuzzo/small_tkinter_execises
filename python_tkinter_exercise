@@ -1,0 +1,118 @@
+# -*- coding: utf-8 -*-
+"""
+Created on Sat Dec  9 11:47:36 2023
+
+@author: e.nuzzo
+"""
+### source file: 
+##### https://www.kaggle.com/datasets/mysarahmadbhat/wine-tasting/data
+
+##  in the second version we will hve a text analysis on 
+## wine descritpion
+
+###  things to do: 
+#### provide a better graphics: the image of the wine glass should cover
+###   ---  all the interface (as backgroud)
+###   -- the list provided in the window once selected  (listing method= )
+####  the filter on the price  need to be more easy to use 
+### and by now it allows only the selection of maximum price   
+
+import pandas as pd
+import matplotlib.pyplot as plt
+from tkinter import ttk
+import tkinter as tk
+from PIL import ImageTk, Image
+# Leggi il dataset dal file CSV
+dataset_path = 'C:\\Users\\e.nuzzo\\Desktop\\stronzate e culi\\progetto freelance\\apprendi_il_python\\Statistical\\Data\\winemag-data-130k-v2.csv'
+df = pd.read_csv(dataset_path)
+df['variety'] = df['variety'].str.replace("'","")
+
+df.columns
+
+ # Function to filter wines based on user selections
+def filter_wines():
+    # Get user-selected values
+    selected_country = country_var.get()
+    selected_price_range_str = price_range_var.get()  # Get the string representation
+    ###selected_price_range = tuple(map(float, selected_price_range_str.split(" ")))  # Convert to a tuple of floats
+    print(price_range_var.get())
+    selected_price_range = [0,1]
+    selected_price_range[0] = 0.0
+    selected_price_range[1] = float(selected_price_range_str)
+    
+    selected_variety = variety_var.get()
+
+    # Filter the dataframe based on selections
+    filtered_df = df[
+        (df['country'] == selected_country) &
+        #(df['price'] >= selected_price_range[0]) &
+        #(df['price'] <= selected_price_range[1]) &
+        (df['variety'] == selected_variety)
+    ][['title','country','description','price','winery']]
+    
+    # Display results or perform other desired actions
+    result_text.config(state=tk.NORMAL)
+    result_text.delete(1.0, tk.END)
+    result_text.insert(tk.END, filtered_df)
+    #result_text.config(state=tk.DISABLED)
+
+
+# Create the user interface
+root = tk.Tk()
+frame = tk.Frame(root, width=1200, height=800)
+frame.pack()
+frame.place(anchor='w', relx=0.5, rely=0.5)
+img = ImageTk.PhotoImage(Image.open("C:\\Users\\e.nuzzo\\Desktop\\stronzate e culi\\progetto freelance\\apprendi_il_python\\Statistical\\Data\\wine-icegif-9.gif"))
+label = tk.Label(frame, image = img)
+label.pack()
+# Background image (replace 'background_image.gif' with your image file)
+#bg_image = tk.PhotoImage(file='C:\\Users\\e.nuzzo\\Desktop\\stronzate e culi\\progetto freelance\\apprendi_il_python\\Statistical\\Data\\wine-icegif-9.gif')
+#bg_label = tk.Label(root, image=bg_image)
+#bg_label.place(relwidth=2, relheight=2)  # Set the image to cover the entire window
+root.title("Wine Selection Interface ")
+
+# Enlarge the window
+root.geometry("1200x800")  # Set the width and height as needed
+
+# Options for selecting country
+countries = list(df['country'].unique())
+country_label = ttk.Label(root, text="Select Country:")
+country_label.grid(row=0, column=0, padx=10, pady=10, sticky=tk.W)
+country_var = ttk.Combobox(root, values=countries)
+country_var.grid(row=0, column=1, padx=10, pady=10, sticky=tk.W)
+country_var.set(countries[0])
+
+# Options for selecting price range
+price_range_label = ttk.Label(root, text="Select Price Range:")
+price_range_label.grid(row=1, column=0, padx=10, pady=10, sticky=tk.W)
+price_range_var = ttk.Scale(root, from_=df['price'].min(), to=df['price'].max(), orient=tk.HORIZONTAL, length=200)
+price_range_var.set(( df['price'].max()))
+price_range_var.grid(row=1, column=1, padx=10, pady=10, sticky=tk.W)
+
+
+# Options for selecting variety
+selected_country = country_var.get()
+varieties = list(df['variety'].unique())
+variety_label = ttk.Label(root, text="Select Variety:")
+variety_label.grid(row=2, column=0, padx=10, pady=10, sticky=tk.W)
+variety_var = ttk.Combobox(root, values=varieties)
+variety_var.grid(row=2, column=1, padx=10, pady=10, sticky=tk.W)
+variety_var.set(varieties[0])
+
+# Button to execute the selection
+filter_button = ttk.Button(root, text="Filter Wines", command=filter_wines)
+filter_button.grid(row=3, column=0, columnspan=2, pady=20)
+
+# Result text display
+result_text = tk.Text(root, height=10, width=50,
+                      #state=tk.DISABLED
+                      )
+result_text.grid(row=4, column=0, columnspan=2, padx=10, pady=10)
+
+
+ 
+# Start the Tkinter event loop
+root.mainloop()
+
+
+ 
