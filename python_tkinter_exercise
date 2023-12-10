@@ -18,6 +18,7 @@ Created on Sat Dec  9 11:47:36 2023
 ### and by now it allows only the selection of maximum price   
 
 import pandas as pd
+
 import matplotlib.pyplot as plt
 from tkinter import ttk
 import tkinter as tk
@@ -26,8 +27,15 @@ from PIL import ImageTk, Image
 dataset_path = 'C:\\Users\\e.nuzzo\\Desktop\\stronzate e culi\\progetto freelance\\apprendi_il_python\\Statistical\\Data\\winemag-data-130k-v2.csv'
 df = pd.read_csv(dataset_path)
 df['variety'] = df['variety'].str.replace("'","")
+df.variety = df.variety.replace(r'\s+', ' ', regex=True)
+df.winery = df.winery.replace(r'\s+', ' ', regex=True)
 
-df.columns
+def func1(val):
+    var1value=price_range_var.get()
+    label=ttk.Label(root,text=f'{var1value}',background='grey',foreground='purple',padding=10,font="Arial 20 bold")
+    label.grid(row=1,column=8)
+    label=ttk.Label(root,text='max price',background='grey',foreground='purple',padding=10,font="Arial 20 bold")
+    label.grid(row=0,column=8)
 
  # Function to filter wines based on user selections
 def filter_wines():
@@ -35,7 +43,6 @@ def filter_wines():
     selected_country = country_var.get()
     selected_price_range_str = price_range_var.get()  # Get the string representation
     ###selected_price_range = tuple(map(float, selected_price_range_str.split(" ")))  # Convert to a tuple of floats
-    print(price_range_var.get())
     selected_price_range = [0,1]
     selected_price_range[0] = 0.0
     selected_price_range[1] = float(selected_price_range_str)
@@ -48,7 +55,8 @@ def filter_wines():
         #(df['price'] >= selected_price_range[0]) &
         #(df['price'] <= selected_price_range[1]) &
         (df['variety'] == selected_variety)
-    ][['title','country','description','price','winery']]
+    ][['title','country','price','winery']].to_string(index=False)
+     
     
     # Display results or perform other desired actions
     result_text.config(state=tk.NORMAL)
@@ -83,9 +91,10 @@ country_var.grid(row=0, column=1, padx=10, pady=10, sticky=tk.W)
 country_var.set(countries[0])
 
 # Options for selecting price range
+ 
 price_range_label = ttk.Label(root, text="Select Price Range:")
 price_range_label.grid(row=1, column=0, padx=10, pady=10, sticky=tk.W)
-price_range_var = ttk.Scale(root, from_=df['price'].min(), to=df['price'].max(), orient=tk.HORIZONTAL, length=200)
+price_range_var = ttk.Scale(root, from_=df['price'].min(), to=df['price'].max(), orient=tk.HORIZONTAL, length=200, command=func1)
 price_range_var.set(( df['price'].max()))
 price_range_var.grid(row=1, column=1, padx=10, pady=10, sticky=tk.W)
 
@@ -104,15 +113,16 @@ filter_button = ttk.Button(root, text="Filter Wines", command=filter_wines)
 filter_button.grid(row=3, column=0, columnspan=2, pady=20)
 
 # Result text display
-result_text = tk.Text(root, height=10, width=50,
+result_text = tk.Text(root, height=10, width=100,
                       #state=tk.DISABLED
                       )
-result_text.grid(row=4, column=0, columnspan=2, padx=10, pady=10)
-
+result_text.grid(row=4, column=0, columnspan=4, padx=10, pady=10)
+result_text.tag_configure("center", justify='center')
+result_text.tag_add("center", 1.0, "end")
+ 
 
  
 # Start the Tkinter event loop
 root.mainloop()
-
-
  
+
